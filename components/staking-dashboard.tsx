@@ -1,72 +1,94 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useWeb3 } from "@/components/web3-provider"
-import { ethers } from "ethers"
-import { Wallet, Layers, Users, BarChart3, ArrowDownToLine, ArrowUpFromLine, RefreshCw } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react";
+import { useWeb3 } from "@/components/web3-provider";
+import { ethers } from "ethers";
+import {
+  Wallet,
+  Layers,
+  Users,
+  BarChart3,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  RefreshCw,
+} from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export function StakingDashboard() {
-  const { stakingDashboardContract, isConnected, account, refreshBalances, ethBalance, dETHBalance, sETHBalance } =
-    useWeb3()
-  const [loading, setLoading] = useState(true)
-  const [isRefreshing, setIsRefreshing] = useState(false)
+  const {
+    stakingDashboardContract,
+    isConnected,
+    account,
+    refreshBalances,
+    balance,
+  } = useWeb3();
+  const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [overview, setOverview] = useState({
     totalETHDeposited: "0",
     totalETHStaked: "0",
     totalStakers: "0",
     averageStakeAmount: "0",
-  })
+  });
   const [userStats, setUserStats] = useState({
     stakedAmount: "0",
     stakingTimestamp: "0",
     rank: "0",
     percentageOfTotal: "0",
-  })
+  });
 
   const fetchData = async () => {
     if (stakingDashboardContract) {
       try {
-        setLoading(true)
+        setLoading(true);
 
         // Get staking overview
-        const overviewData = await stakingDashboardContract.getStakingOverview()
+        const overviewData =
+          await stakingDashboardContract.getStakingOverview();
         setOverview({
           totalETHDeposited: ethers.formatEther(overviewData.totalETHDeposited),
           totalETHStaked: ethers.formatEther(overviewData.totalETHStaked),
           totalStakers: overviewData.totalStakers.toString(),
-          averageStakeAmount: ethers.formatEther(overviewData.averageStakeAmount),
-        })
+          averageStakeAmount: ethers.formatEther(
+            overviewData.averageStakeAmount
+          ),
+        });
 
         // Get user stats if connected
         if (account) {
-          const userStatsData = await stakingDashboardContract.getStakerDetails(account)
+          const userStatsData = await stakingDashboardContract.getStakerDetails(
+            account
+          );
           setUserStats({
             stakedAmount: ethers.formatEther(userStatsData.stakedAmount),
-            stakingTimestamp: new Date(Number(userStatsData.stakingTimestamp) * 1000).toLocaleDateString(),
+            stakingTimestamp: new Date(
+              Number(userStatsData.stakingTimestamp) * 1000
+            ).toLocaleDateString(),
             rank: userStatsData.rank.toString(),
-            percentageOfTotal: (Number(userStatsData.percentageOfTotal) / 100).toFixed(2),
-          })
+            percentageOfTotal: (
+              Number(userStatsData.percentageOfTotal) / 100
+            ).toFixed(2),
+          });
         }
       } catch (error) {
-        console.error("Error fetching staking data:", error)
+        console.error("Error fetching staking data:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
-  }
+  };
 
   useEffect(() => {
-    fetchData()
-  }, [stakingDashboardContract, account, isConnected])
+    fetchData();
+  }, [stakingDashboardContract, account, isConnected]);
 
   const handleRefresh = async () => {
-    setIsRefreshing(true)
-    await refreshBalances()
-    await fetchData()
-    setTimeout(() => setIsRefreshing(false), 1000)
-  }
+    setIsRefreshing(true);
+    await refreshBalances();
+    await fetchData();
+    setTimeout(() => setIsRefreshing(false), 1000);
+  };
 
   return (
     <div>
@@ -79,7 +101,9 @@ export function StakingDashboard() {
           disabled={isRefreshing}
           className="bg-white text-lightblue-600 border-lightblue-200 hover:bg-lightblue-50"
         >
-          <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+          <RefreshCw
+            className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+          />
           Refresh
         </Button>
       </div>
@@ -88,25 +112,35 @@ export function StakingDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div className="stat-card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-lightblue-700">Available Balance</h3>
+            <h3 className="text-sm font-medium text-lightblue-700">
+              Available Balance
+            </h3>
             <Wallet className="h-5 w-5 text-lightblue-500" />
           </div>
-          <div className="text-2xl font-bold text-lightblue-950">{Number.parseFloat(dETHBalance).toFixed(4)}</div>
+          <div className="text-2xl font-bold text-lightblue-950">
+            {Number.parseFloat(balance.dEth).toFixed(4)}
+          </div>
           <div className="text-sm font-medium text-lightblue-600">dETH</div>
         </div>
 
         <div className="stat-card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-lightblue-700">Staked Balance</h3>
+            <h3 className="text-sm font-medium text-lightblue-700">
+              Staked Balance
+            </h3>
             <Layers className="h-5 w-5 text-lightblue-500" />
           </div>
-          <div className="text-2xl font-bold text-lightblue-950">{Number.parseFloat(sETHBalance).toFixed(4)}</div>
+          <div className="text-2xl font-bold text-lightblue-950">
+            {Number.parseFloat(balance.sEth).toFixed(4)}
+          </div>
           <div className="text-sm font-medium text-lightblue-600">sETH</div>
         </div>
 
         <div className="stat-card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-lightblue-700">Total Protocol Staked</h3>
+            <h3 className="text-sm font-medium text-lightblue-700">
+              Total Protocol Staked
+            </h3>
             <BarChart3 className="h-5 w-5 text-lightblue-500" />
           </div>
           <div className="text-2xl font-bold text-lightblue-950">
@@ -140,14 +174,19 @@ export function StakingDashboard() {
       {/* Total Stakers */}
       <div className="stat-card">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-medium text-lightblue-700">Total Stakers</h3>
+          <h3 className="text-sm font-medium text-lightblue-700">
+            Total Stakers
+          </h3>
           <Users className="h-5 w-5 text-lightblue-500" />
         </div>
-        <div className="text-2xl font-bold text-lightblue-950">{overview.totalStakers}</div>
+        <div className="text-2xl font-bold text-lightblue-950">
+          {overview.totalStakers}
+        </div>
         <div className="text-sm text-lightblue-700 mt-2">
-          Average stake: {Number.parseFloat(overview.averageStakeAmount).toFixed(4)} ETH
+          Average stake:{" "}
+          {Number.parseFloat(overview.averageStakeAmount).toFixed(4)} ETH
         </div>
       </div>
     </div>
-  )
+  );
 }
