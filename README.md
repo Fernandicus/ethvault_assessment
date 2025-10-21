@@ -1,7 +1,18 @@
 # ETHVault - Ethereum Staking & Governance Platform
 
-ETHVault is a decentralized platform for Ethereum staking, governance, and participation in the Ethereum ecosystem. It allows users to stake ETH, earn rewards, and vote on proposals that shape the future of the protocol.
+## Assessment Tasks
 
+When a user connects their wallet, the Connected Wallet panel (top right corner) must display real-time balances for the following tokens:
+
+- [x] ETH (native wallet balance)
+- [x] dETH (deposited ETH token)
+- [x] sETH (staked ETH token)
+
+> Token balances must be displayed on every page to ensure users have real-time, accurate information about their assets.
+
+## Project Description
+
+ETHVault is a decentralized platform for Ethereum staking, governance, and participation in the Ethereum ecosystem. It allows users to stake ETH, earn rewards, and vote on proposals that shape the future of the protocol.
 
 ## Technology Stack
 
@@ -29,11 +40,13 @@ The platform is built on four main smart contracts:
 ### Installation
 
 1. Install dependencies:
+
    ```bash
    npm install
    ```
 
 2. Run the development server:
+
    ```bash
    npm run dev
    ```
